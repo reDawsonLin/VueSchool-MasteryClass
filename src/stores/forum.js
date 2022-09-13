@@ -12,9 +12,34 @@ export const useForumStore = defineStore("forum", () => {
   };
 
   const authId = ref("VXjpr2WHa8Ux4Bnggym8QFLdv5C3");
+
+  const user = users.find((user) => user.id === authId.value);
+  const userPosts = computed(() =>
+    posts.filter((post) => post.userId === user.id)
+  );
+  const userPostsCount = computed(() => userPosts.value.length);
+  const userThreads = computed(() =>
+    threads.filter((thread) => thread.userId === user.id)
+  );
+  const userThreadsCount = computed(() => userThreads.value.length);
+
   const authUser = computed(() => {
-    return users.find((user) => user.id === authId.value);
+    return {
+      ...user,
+      userPosts: userPosts.value,
+      userPostsCount: userPostsCount.value,
+      userThreads: userThreads.value,
+      userThreadsCount: userThreadsCount.value,
+    };
   });
+
+  const setUser = (user, id) => {
+    console.log("user :>> ", user);
+    const userIndex = users.findIndex((user) => user.id === id);
+    console.log("userIndex :>> ", userIndex);
+    console.log("users[userIndex] :>> ", users[userIndex]);
+    users[userIndex] = user;
+  };
 
   // --------
   function setPost(post) {
@@ -28,14 +53,15 @@ export const useForumStore = defineStore("forum", () => {
   }
 
   return {
-    // authId,
     authUser,
     categories,
     forums,
     posts,
     stats,
     threads,
+    user,
     users,
     createPost,
+    setUser,
   };
 });

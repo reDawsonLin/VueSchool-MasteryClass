@@ -1,55 +1,22 @@
 <script setup>
-import { computed } from "@vue/reactivity";
+// import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useForumStore } from "../stores/forum";
+import UserProfileCardEditor from "../components/UserProfileCardEditor.vue";
 
 const store = useForumStore();
-const { authUser: user, posts, threads } = storeToRefs(store);
+const { authUser, user } = storeToRefs(store);
 
-const userPosts = computed(() =>
-  posts.value.filter((post) => post.userId === user.value.id)
-);
-const userPostsCount = computed(() => userPosts.value.length);
-
-const userThreads = computed(() =>
-  threads.value.filter((thread) => thread.userId === user.value.id)
-);
-const userThreadsCount = computed(() => userThreads.value.length);
+// console.log("user.value :>> ", user.value);
+// console.log("user.value.usePosts :>> ", user.value.usePosts);
 </script>
 
 <template>
   <div class="container">
     <div class="flex-grid">
       <div class="col-3 push-top">
-        <div class="profile-card">
-          <p class="text-center">
-            <img
-              :src="user.avatar"
-              alt="`${user.name} profile picture`"
-              class="avatar-xlarge"
-            />
-          </p>
-
-          <h1 class="title">{{ user.username }}</h1>
-
-          <p class="text-lead">{{ user.name }}</p>
-
-          <p class="text-justify">{{ user.bio || "No bio specified" }}</p>
-
-          <span class="online">{{ user.username }} is online</span>
-
-          <div class="stats">
-            <span>{{ userPostsCount }} posts</span>
-            <span>{{ userThreadsCount }} threads</span>
-          </div>
-
-          <hr />
-
-          <p v-if="user.website" class="text-large text-center">
-            <i class="fa fa-globe"></i>
-            <a :href="user.website">{{ user.wibsite }}</a>
-          </p>
-        </div>
+        <UserProfileCard :user="user" />
+        <UserProfileCardEditor :user="user" />
 
         <p class="text-xsmall text-faded text-center">
           Member since june 2003, last visited 4 hours ago
@@ -71,7 +38,7 @@ const userThreadsCount = computed(() => userThreads.value.length);
 
         <hr />
 
-        <PostList :posts="userPosts" />
+        <PostList :posts="authUser.userPosts" />
 
         <!-- <div class="activity-list">
           <div class="activity">
