@@ -1,6 +1,6 @@
 # vueschool-forum
 
-RE the Course from Vue3 Optional API + VueX ==> Vue3 + Vite + <script setup> + Pinia
+RE the Course from Vue3 Optional API + Vue Cli + VueX ==> Vue3 <script setup> + Vite + Pinia
 
 ## Recommended IDE Setup
 
