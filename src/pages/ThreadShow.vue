@@ -6,10 +6,10 @@ const props = defineProps({
   id: String, // thread's ID
 });
 
-const forumStore = useForumStore();
+const store = useForumStore();
 
-const { threads, posts } = storeToRefs(forumStore);
-const { createPost } = forumStore;
+const { threads, posts } = storeToRefs(store);
+const { createPost } = store;
 
 const thread = computed(() =>
   threads.value.find((thread) => thread.id === props.id)

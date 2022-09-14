@@ -5,27 +5,30 @@ import sourceData from "@/data.json";
 export const useForumStore = defineStore("forum", () => {
   const { categories, forums, posts, stats, threads, users } =
     reactive(sourceData);
+  const authId = ref("VXjpr2WHa8Ux4Bnggym8QFLdv5C3");
 
   const createPost = (post) => {
+    post.id = "gggg" + Math.random();
+    post.userId = authId;
+    post.publishedAt = Math.floor(Date.now() / 1000);
     setPost(post);
     pushPostToThread(post.id, post.threadId);
   };
 
-  const authId = ref("VXjpr2WHa8Ux4Bnggym8QFLdv5C3");
-
-  const user = users.find((user) => user.id === authId.value);
+  // const user = users.find((user) => user.id === authId.value);
+  const user = computed(() => users.find((user) => user.id === authId.value));
   const userPosts = computed(() =>
-    posts.filter((post) => post.userId === user.id)
+    posts.filter((post) => post.userId === user.value.id)
   );
   const userPostsCount = computed(() => userPosts.value.length);
   const userThreads = computed(() =>
-    threads.filter((thread) => thread.userId === user.id)
+    threads.filter((thread) => thread.userId === user.value.id)
   );
   const userThreadsCount = computed(() => userThreads.value.length);
 
   const authUser = computed(() => {
     return {
-      ...user,
+      ...user.value,
       userPosts: userPosts.value,
       userPostsCount: userPostsCount.value,
       userThreads: userThreads.value,
@@ -33,17 +36,14 @@ export const useForumStore = defineStore("forum", () => {
     };
   });
 
-  const setUser = (user, id) => {
-    console.log("user :>> ", user);
-    const userIndex = users.findIndex((user) => user.id === id);
-    console.log("userIndex :>> ", userIndex);
-    console.log("users[userIndex] :>> ", users[userIndex]);
-    users[userIndex] = user;
+  const setUser = (authUser) => {
+    const userIndex = users.findIndex((user) => user.id === authUser.id);
+    users[userIndex] = authUser;
   };
 
   // --------
   function setPost(post) {
-    console.log("posts :>> ", posts);
+    // console.log("posts :>> ", posts);
     posts.push(post);
   }
 
@@ -61,6 +61,10 @@ export const useForumStore = defineStore("forum", () => {
     threads,
     user,
     users,
+    userPosts,
+    userPostsCount,
+    userThreads,
+    userThreadsCount,
     createPost,
     setUser,
   };

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import PageHome from "@/pages/Home.vue";
+import Profile from "@/pages/Profile.vue";
 import sourceData from "@/data.json";
 
 const router = createRouter({
@@ -13,7 +14,14 @@ const router = createRouter({
     {
       path: "/me",
       name: "Profile",
-      component: () => import("@/pages/Profile.vue"),
+      component: Profile,
+      meta: { toTop: true, smoothScroll: true },
+    },
+    {
+      path: "/me/edit",
+      name: "ProfileEdit",
+      component: Profile,
+      props: { edit: true },
     },
     {
       path: "/category/:id",
@@ -74,8 +82,11 @@ const router = createRouter({
       component: () => import("@/pages/NotFound.vue"),
     },
   ],
-  scrollBehavior() {
-    return { top: 0 };
+  scrollBehavior(to) {
+    const scroll = {};
+    if (to.meta.toTop) scroll.top = 0;
+    if (to.meta.smoothScroll) scroll.behavior = "smooth";
+    return scroll;
   },
 });
 

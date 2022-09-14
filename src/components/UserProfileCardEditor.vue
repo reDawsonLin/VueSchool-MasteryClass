@@ -1,25 +1,30 @@
 <script setup>
 import { reactive } from "vue";
-import { useForumStore } from "../stores/forum";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 const props = defineProps({
   user: Object,
+  userPostsCount: Number,
+  userThreadsCount: Number,
 });
+const emit = defineEmits(["save"]);
 
-const store = useForumStore();
-const { setUser } = store;
-
+// for v-model
 const activeUser = reactive({ ...props.user });
 
-console.log("activeUser :>> ", activeUser);
-
 const save = () => {
-  setUser({ ...activeUser }, activeUser.id);
+  emit("save", activeUser);
+  toPageProfile();
 };
+
+function toPageProfile() {
+  router.push({ name: "Profile" });
+}
 </script>
 
 <template>
-  <form @submit.prevent="save">
+  <form @submit.prevent="save()">
     <div class="profile-card">
       <p class="text-center">
         <img
@@ -58,8 +63,8 @@ const save = () => {
       </div>
 
       <div class="stats">
-        <span>{{ user.postsCount }} posts</span>
-        <span>{{ user.threadsCount }} threads</span>
+        <span>{{ userPostsCount }} posts</span>
+        <span>{{ userThreadsCount }} threads</span>
       </div>
 
       <hr />
@@ -95,7 +100,9 @@ const save = () => {
       </div>
 
       <div class="btn-group space-between">
-        <button class="btn-ghost">Cancel</button>
+        <button class="btn-ghost" @click.prevent="toPageProfile()">
+          Cancel
+        </button>
         <button type="submit" class="btn-blue">Save</button>
       </div>
     </div>
