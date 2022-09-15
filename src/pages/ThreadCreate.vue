@@ -1,14 +1,30 @@
 <script setup>
-import { ref } from "vue";
+import { computed } from "vue";
+import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
+import { useForumStore } from "../stores/forum";
+import ThreadEditor from "../components/ThreadEditor.vue";
 
-defineProps({
-  forum: Object,
+const props = defineProps({
+  forumId: String,
 });
 
-const title = ref("");
-const text = ref("");
-const save = () => {
-  console.log("save");
+const router = useRouter();
+const store = useForumStore();
+const { createThread } = store;
+const { forums } = storeToRefs(store);
+
+const forum = computed(() =>
+  forums.value.find((forum) => forum.id === props.forumId)
+);
+
+const save = async ({ title, text }) => {
+  const thread = await createThread(props.forumId, title, text);
+  router.push({ name: "threadShow", params: { id: thread.id } });
+};
+
+const cancel = () => {
+  router.push({ name: "forum", params: { id: forum.value.id } });
 };
 </script>
 
@@ -18,37 +34,7 @@ const save = () => {
       Create new thread in <i>{{ forum.name }}</i>
     </h1>
 
-    <form @submit.prevent="save">
-      <div class="form-group">
-        <label for="thread_title">Title:</label>
-        <input
-          v-model="title"
-          type="text"
-          id="thread_title"
-          class="form-input"
-          name="title"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="thread_content">Content:</label>
-        <textarea
-          v-model="text"
-          id="thread_content"
-          class="form-input"
-          name="content"
-          rows="8"
-          cols="140"
-        ></textarea>
-      </div>
-
-      <div class="btn-group">
-        <button class="btn btn-ghost">Cancel</button>
-        <button class="btn btn-blue" type="submit" name="Publish">
-          Publish
-        </button>
-      </div>
-    </form>
+    <ThreadEditor @save="save" @cancel="cancel" />
   </div>
 </template>
 

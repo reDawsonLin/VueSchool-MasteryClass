@@ -77,6 +77,12 @@ const router = createRouter({
       },
     },
     {
+      path: "/form/:forumId/thread/create",
+      name: "threadCreate",
+      component: () => import("@/pages/ThreadCreate.vue"),
+      props: true,
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "NotFound",
       component: () => import("@/pages/NotFound.vue"),
