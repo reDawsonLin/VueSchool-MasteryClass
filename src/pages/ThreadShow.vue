@@ -2,6 +2,8 @@
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useForumStore } from "../stores/forum";
+import { findById } from "@/helpers";
+
 const props = defineProps({
   id: String, // thread's ID
 });
@@ -11,16 +13,10 @@ const store = useForumStore();
 const { threads, posts } = storeToRefs(store);
 const { createPost } = store;
 
-const thread = computed(() =>
-  threads.value.find((thread) => thread.id === props.id)
-);
-
+const thread = computed(() => findById(threads.value, props.id));
 const threadPosts = computed(() =>
   posts.value.filter((post) => post.threadId === props.id)
 );
-
-// console.log("threads.value :>> ", threads.value);
-// console.log("posts.value :>> ", posts.value);
 
 const addPost = (payload) => {
   console.log("running");
@@ -31,26 +27,64 @@ const addPost = (payload) => {
     threadId: props.id,
   };
 
-  // console.log("post :>> ", post);
   createPost(post);
-  // posts.value.push(post);
-  // thread.value.posts.push(post.id);
 };
 </script>
 
 <template>
   <div class="col-large push-top">
-    <h1>{{ thread.title }}</h1>
-    <PostList :posts="threadPosts" />
+    <div class="d-flex aic g-1rem mb-1rem">
+      <h1>{{ thread.title }}</h1>
+      <router-link
+        :to="{
+          name: 'threadEdit',
+          params: {
+            threadId: thread.id,
+          },
+        }"
+        custom
+        v-slot="{ navigate }"
+      >
+        <button @click="navigate" class="btn-green btn-small">
+          Edit Thread
+        </button>
+      </router-link>
+    </div>
+    <p>
+      By <a href="#" class="link-unstyled">Robin</a>, 2 hours ago.
+      <span
+        style="float: right; margin-top: 2px"
+        class="hide-mobile text-faded text-small"
+        >3 replies by 3 contributors</span
+      >
+    </p>
 
+    <PostList :posts="threadPosts" />
     <PostEditor @save="addPost" />
   </div>
 </template>
 
 <style lang="scss">
+.d-flex {
+  display: flex;
+}
+
+.aic {
+  align-items: center;
+}
+
+.g-1rem {
+  gap: 1rem;
+}
+
+.mb-1rem {
+  margin-bottom: 1rem;
+}
+
 h1 {
   color: rosybrown;
   font-weight: bold;
+  margin-bottom: 0;
 }
 
 s.post-list {

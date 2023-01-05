@@ -2,17 +2,11 @@
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useForumStore } from "../stores/forum";
+import { findById } from "@/helpers";
 
-const props = defineProps({
-  id: String,
-});
-
+const props = defineProps({ id: String });
 const { forums, threads: storeThreads } = storeToRefs(useForumStore());
-
-const forum = computed(() =>
-  forums.value.find((forum) => forum.id === props.id)
-);
-
+const forum = computed(() => findById(forums.value, props.id));
 const threads = computed(() =>
   storeThreads.value.filter((thread) => thread.forumId === props.id)
 );

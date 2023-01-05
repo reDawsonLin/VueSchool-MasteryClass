@@ -1,15 +1,16 @@
 <script setup>
 import { storeToRefs } from "pinia";
 import { useForumStore } from "../stores/forum";
+import { findById } from "@/helpers";
 
-defineProps({
+const props = defineProps({
   id: String,
   threads: Array,
 });
 
 const { users } = storeToRefs(useForumStore());
-
-const userById = (userId) => users.value.find((p) => p.id === userId);
+const userById = (userId) => findById(users.value, userId);
+console.log("threads :>> ", props.threads);
 </script>
 
 <template>

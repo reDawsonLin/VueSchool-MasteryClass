@@ -2,6 +2,7 @@
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
 import { useForumStore } from "../stores/forum";
+import { findById } from "@/helpers";
 
 const props = defineProps({
   id: String,
@@ -9,9 +10,7 @@ const props = defineProps({
 
 const { categories, forums } = storeToRefs(useForumStore());
 
-const category = computed(() =>
-  categories.value.find((category) => category.id === props.id)
-);
+const category = computed(() => findById(categories.value, props.id));
 
 const getForumsForCategory = (category) =>
   forums.value.filter((forum) => forum.categoryId === category.id);

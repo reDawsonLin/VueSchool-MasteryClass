@@ -1,12 +1,48 @@
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
 import sourceData from "@/data.json";
+import { findById, upsert } from "@/helpers";
 
 export const useForumStore = defineStore("forum", () => {
   const { categories, forums, posts, stats, threads, users } =
     reactive(sourceData);
   const authId = ref("VXjpr2WHa8Ux4Bnggym8QFLdv5C3");
 
+  // push function
+  // function makeAppendChildToParent(child, parent) {
+  //   return (childId, parentId) => {
+  //     const resource = findById(parent, parentId);
+  //     resource[child] = resource[child] || [];
+  //     resource[child].push(childId);
+
+  //     console.log("src :>> ", resource);
+  //   };
+  // }
+  // const appendPostToThread = makeAppendChildToParent(posts, threads);
+  // const appendThreadToForum = makeAppendChildToParent(threads, forums);
+  // const appendThreadToUser = makeAppendChildToParent(threads, users);
+
+  function appendPostToThread(postId, threadId) {
+    const thread = findById(threads, threadId);
+    thread.posts = thread.posts || [];
+    thread.posts.push(postId);
+
+    console.log("thread :>> ", thread);
+  }
+
+  function appendThreadToForum(threadId, forumId) {
+    const forum = findById(forums, forumId);
+    forum.threads = forum.threads || [];
+    forum.threads.push(threadId);
+  }
+
+  function appendThreadToUser(threadId, userId) {
+    const user = findById(users, userId);
+    user.threads = user.threads || [];
+    user.threads.push(threadId);
+  }
+
+  // -------
   const createPost = (post) => {
     post.id = "gggg" + Math.random();
     post.userId = authId.value;
@@ -14,7 +50,7 @@ export const useForumStore = defineStore("forum", () => {
 
     console.log("post :>> ", post);
     setPost(post);
-    pushPostToThread(post.id, post.threadId);
+    appendPostToThread(post.id, post.threadId);
   };
 
   const createThread = async (forumId, title, text) => {
@@ -31,14 +67,26 @@ export const useForumStore = defineStore("forum", () => {
     };
 
     setThread(thread);
-    pushThreadToForum(forumId, id);
-    pushThreadToUser(userId, id);
+    appendThreadToForum(id, forumId);
+    appendThreadToUser(id, userId);
     createPost({ text, threadId: id });
-    // 這裡的寫法真的很帥，甩尾寫法；這樣寫就算param只有一個，他也會判斷是 param.text, param.threadId。
-    return threads.find((thread) => thread.id === id);
+    // 這裡的寫法真的很帥，甩尾寫法；這樣寫就算 param 只有一個，他也會判斷是 param.text, param.threadId。
+    return findById(threads, id);
   };
 
-  const user = computed(() => users.find((user) => user.id === authId.value));
+  const updateThread = async (threadId, title, text) => {
+    const thread = findById(threads, threadId);
+    const post = findById(posts, thread.posts[0]);
+    const newThread = { ...thread, title }; //  利用解構，若有相同的key，後面的會覆蓋前面的
+    const newPost = { ...post, text };
+
+    setThread(newThread);
+    setPost(newPost);
+
+    return newThread;
+  };
+
+  const user = computed(() => findById(users, authId.value));
   const userPosts = computed(() =>
     posts.filter((post) => post.userId === user.value.id)
   );
@@ -63,33 +111,13 @@ export const useForumStore = defineStore("forum", () => {
     users[userIndex] = authUser;
   };
 
-  // --------
+  // function --------
   function setPost(post) {
-    posts.push(post);
+    upsert(posts, post);
   }
 
   function setThread(thread) {
-    threads.push(thread);
-  }
-
-  function pushPostToThread(postId, threadId) {
-    const thread = threads.find((thread) => thread.id === threadId);
-    console.log("thread :>> ", thread);
-    thread.posts = thread.posts || [];
-    // thread.posts?.push(postId);
-    thread.posts.push(postId);
-  }
-
-  function pushThreadToForum(forumId, threadId) {
-    const forum = forums.find((forum) => forum.id === forumId);
-    forum.posts = forum.posts || [];
-    forum.posts.push(threadId);
-  }
-
-  function pushThreadToUser(userId, threadId) {
-    const user = users.find((user) => user.id === userId);
-    user.posts = user.posts || [];
-    user.posts.push(threadId);
+    upsert(threads, thread);
   }
 
   return {
@@ -108,5 +136,6 @@ export const useForumStore = defineStore("forum", () => {
     createPost,
     createThread,
     setUser,
+    updateThread,
   };
 });

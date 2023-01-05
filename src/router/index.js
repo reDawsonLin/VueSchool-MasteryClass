@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import PageHome from "@/pages/Home.vue";
 import Profile from "@/pages/Profile.vue";
 import sourceData from "@/data.json";
+import { findById } from "@/helpers";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,9 +61,8 @@ const router = createRouter({
       props: true,
       beforeEnter(to, from, next) {
         // check if thread exists
-        const threadExists = sourceData.threads.find(
-          (thread) => thread.id === to.params.id
-        );
+        const threadExists = findById(sourceData.threads, to.params.id);
+
         // if exists continue
         if (threadExists) {
           next();
@@ -77,9 +77,15 @@ const router = createRouter({
       },
     },
     {
-      path: "/form/:forumId/thread/create",
+      path: "/forum/:forumId/thread/create",
       name: "threadCreate",
       component: () => import("@/pages/ThreadCreate.vue"),
+      props: true,
+    },
+    {
+      path: "/thread/:threadId/edit",
+      name: "threadEdit",
+      component: () => import("@/pages/ThreadEdit.vue"),
       props: true,
     },
     {

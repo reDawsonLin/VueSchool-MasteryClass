@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { useForumStore } from "../stores/forum";
+import { findById } from "@/helpers";
 import ThreadEditor from "../components/ThreadEditor.vue";
 
 const props = defineProps({
@@ -14,9 +15,7 @@ const store = useForumStore();
 const { createThread } = store;
 const { forums } = storeToRefs(store);
 
-const forum = computed(() =>
-  forums.value.find((forum) => forum.id === props.forumId)
-);
+const forum = computed(() => findById(forums.value, props.forumId));
 
 const save = async ({ title, text }) => {
   const thread = await createThread(props.forumId, title, text);

@@ -1,16 +1,12 @@
 <script setup>
 import { storeToRefs } from "pinia";
 import { useForumStore } from "../stores/forum";
+import { findById } from "@/helpers";
 
-const props = defineProps({
-  posts: Array,
-});
+defineProps({ posts: Array });
 
 const { users } = storeToRefs(useForumStore());
-
-const userById = (userId) => {
-  return users.value.find((p) => p.id === userId);
-};
+const userById = (userId) => findById(users.value, userId);
 </script>
 
 <template>
