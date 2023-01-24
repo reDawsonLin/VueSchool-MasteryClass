@@ -1,8 +1,9 @@
 <script setup>
-import { computed } from "vue";
+import { computed, watchEffect } from "vue";
 import { storeToRefs } from "pinia";
 import { useForumStore } from "../stores/forum";
 import { findById } from "@/helpers";
+// import AppDate from "@/components/AppDate.vue";
 
 const props = defineProps({
   id: String, // thread's ID
@@ -10,10 +11,15 @@ const props = defineProps({
 
 const store = useForumStore();
 
-const { threads, posts } = storeToRefs(store);
+const { threads, posts, thread: storeThread } = storeToRefs(store);
 const { createPost } = store;
 
-const thread = computed(() => findById(threads.value, props.id));
+// 這裡需要動態嗎？ 甚麼時候會變動
+const thread = storeThread.value(props.id);
+watchEffect(() => {
+  console.log("thread :>> ", thread);
+});
+// const thread = computed(() => findById(threads.value, props.id));
 const threadPosts = computed(() =>
   posts.value.filter((post) => post.threadId === props.id)
 );
@@ -50,12 +56,15 @@ const addPost = (payload) => {
         </button>
       </router-link>
     </div>
+
     <p>
-      By <a href="#" class="link-unstyled">Robin</a>, 2 hours ago.
+      By <a href="#" class="link-unstyled">{{ thread.author.name }}</a
+      >, <AppDate :timestamp="thread.publishedAt" />.
       <span
         style="float: right; margin-top: 2px"
         class="hide-mobile text-faded text-small"
-        >3 replies by 3 contributors</span
+        >{{ thread.repliesCount }} replies by
+        {{ thread.contributorsCount }} contributors</span
       >
     </p>
 

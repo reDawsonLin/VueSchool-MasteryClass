@@ -34,8 +34,8 @@ console.log("threads :>> ", props.threads);
 
         <div class="activity">
           <p class="replies-count">
-            {{ thread.posts.length }}
-            {{ thread.posts.length !== 1 ? "replies" : "reply" }}
+            {{ thread.repliesCount }}
+            {{ thread.repliesCount !== 1 ? "replies" : "reply" }}
           </p>
 
           <img

@@ -8,40 +8,6 @@ export const useForumStore = defineStore("forum", () => {
     reactive(sourceData);
   const authId = ref("VXjpr2WHa8Ux4Bnggym8QFLdv5C3");
 
-  // push function
-  // function makeAppendChildToParent(child, parent) {
-  //   return (childId, parentId) => {
-  //     const resource = findById(parent, parentId);
-  //     resource[child] = resource[child] || [];
-  //     resource[child].push(childId);
-
-  //     console.log("src :>> ", resource);
-  //   };
-  // }
-  // const appendPostToThread = makeAppendChildToParent(posts, threads);
-  // const appendThreadToForum = makeAppendChildToParent(threads, forums);
-  // const appendThreadToUser = makeAppendChildToParent(threads, users);
-
-  function appendPostToThread(postId, threadId) {
-    const thread = findById(threads, threadId);
-    thread.posts = thread.posts || [];
-    thread.posts.push(postId);
-
-    console.log("thread :>> ", thread);
-  }
-
-  function appendThreadToForum(threadId, forumId) {
-    const forum = findById(forums, forumId);
-    forum.threads = forum.threads || [];
-    forum.threads.push(threadId);
-  }
-
-  function appendThreadToUser(threadId, userId) {
-    const user = findById(users, userId);
-    user.threads = user.threads || [];
-    user.threads.push(threadId);
-  }
-
   // -------
   const createPost = (post) => {
     post.id = "gggg" + Math.random();
@@ -51,6 +17,7 @@ export const useForumStore = defineStore("forum", () => {
     console.log("post :>> ", post);
     setPost(post);
     appendPostToThread(post.id, post.threadId);
+    appendContributorToThread(post.userId, post.threadId);
   };
 
   const createThread = async (forumId, title, text) => {
@@ -111,6 +78,25 @@ export const useForumStore = defineStore("forum", () => {
     users[userIndex] = authUser;
   };
 
+  // 增加留言數量顯示選項 ---
+  const thread = computed(() => {
+    return (threadId) => {
+      const thread = findById(threads, threadId);
+      return {
+        ...thread,
+        get author() {
+          return findById(users, thread.userId);
+        },
+        get repliesCount() {
+          return thread.posts.length - 1;
+        },
+        get contributorsCount() {
+          return thread.contributors?.length || 0;
+        },
+      };
+    };
+  });
+
   // function --------
   function setPost(post) {
     upsert(posts, post);
@@ -120,12 +106,41 @@ export const useForumStore = defineStore("forum", () => {
     upsert(threads, thread);
   }
 
+  function appendPostToThread(postId, threadId) {
+    const thread = findById(threads, threadId);
+    thread.posts = thread.posts || [];
+    thread.posts.push(postId);
+
+    console.log("thread :>> ", thread);
+  }
+
+  function appendThreadToForum(threadId, forumId) {
+    const forum = findById(forums, forumId);
+    forum.threads = forum.threads || [];
+    forum.threads.push(threadId);
+  }
+
+  function appendThreadToUser(threadId, userId) {
+    const user = findById(users, userId);
+    user.threads = user.threads || [];
+    user.threads.push(threadId);
+  }
+
+  function appendContributorToThread(contributorId, threadId) {
+    const thread = findById(threads, threadId);
+    thread.contributors = thread.contributors || [];
+    if (!thread.contributors.includes(contributorId)) {
+      thread.contributors.push(contributorId);
+    }
+  }
+
   return {
     authUser,
     categories,
     forums,
     posts,
     stats,
+    thread,
     threads,
     user,
     users,

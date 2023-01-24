@@ -5,11 +5,16 @@ import { useForumStore } from "../stores/forum";
 import { findById } from "@/helpers";
 
 const props = defineProps({ id: String });
-const { forums, threads: storeThreads } = storeToRefs(useForumStore());
+const {
+  forums,
+  // threads: storeThreads,
+  thread: storeThread,
+} = storeToRefs(useForumStore());
 const forum = computed(() => findById(forums.value, props.id));
-const threads = computed(() =>
-  storeThreads.value.filter((thread) => thread.forumId === props.id)
-);
+const threads = computed(() => {
+  return forum.value.threads.map((threadId) => storeThread.value(threadId));
+  // return storeThreads.value.filter((thread) => thread.forumId === props.id);
+});
 </script>
 
 <template>
