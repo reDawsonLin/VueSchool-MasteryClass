@@ -53,25 +53,29 @@ export const useForumStore = defineStore("forum", () => {
     return newThread;
   };
 
-  const user = computed(() => findById(users, authId.value));
-  const userPosts = computed(() =>
-    posts.filter((post) => post.userId === user.value.id)
-  );
-  const userPostsCount = computed(() => userPosts.value.length);
-  const userThreads = computed(() =>
-    threads.filter((thread) => thread.userId === user.value.id)
-  );
-  const userThreadsCount = computed(() => userThreads.value.length);
-
-  const authUser = computed(() => {
-    return {
-      ...user.value,
-      userPosts: userPosts.value,
-      userPostsCount: userPostsCount.value,
-      userThreads: userThreads.value,
-      userThreadsCount: userThreadsCount.value,
+  const user = computed(() => {
+    return (id) => {
+      const user = findById(users, id);
+      if (!user) return null;
+      return {
+        ...user,
+        get posts() {
+          return posts.filter((post) => post.userId === user.id);
+        },
+        get postsCount() {
+          return this.posts.length;
+        },
+        get threads() {
+          return threads.filter((post) => post.userId === user.id);
+        },
+        get threadsCount() {
+          return this.threads.length;
+        },
+      };
     };
   });
+
+  const authUser = computed(() => user.value(authId.value));
 
   const setUser = (authUser) => {
     const userIndex = users.findIndex((user) => user.id === authUser.id);
@@ -144,10 +148,6 @@ export const useForumStore = defineStore("forum", () => {
     threads,
     user,
     users,
-    userPosts,
-    userPostsCount,
-    userThreads,
-    userThreadsCount,
     createPost,
     createThread,
     setUser,

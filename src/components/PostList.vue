@@ -1,12 +1,12 @@
 <script setup>
 import { storeToRefs } from "pinia";
 import { useForumStore } from "../stores/forum";
-import { findById } from "@/helpers";
 
 defineProps({ posts: Array });
 
-const { users } = storeToRefs(useForumStore());
-const userById = (userId) => findById(users.value, userId);
+const store = useForumStore();
+const { user } = storeToRefs(store);
+const userById = (userId) => user.value(userId);
 </script>
 
 <template>
@@ -23,7 +23,13 @@ const userById = (userId) => findById(users.value, userId);
           />
         </a>
 
-        <p class="desktop-only text-small">107 posts</p>
+        <p class="desktop-only text-small">
+          {{ userById(post.userId).postsCount }} posts
+          <!-- <pre>{{ userById(post.userId) }}</pre> -->
+        </p>
+        <p class="desktop-only text-small">
+          {{ userById(post.userId).threadsCount }} threads
+        </p>
       </div>
 
       <div class="post-content">
